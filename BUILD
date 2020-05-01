@@ -1,6 +1,10 @@
+load("system", "GO")
 load("std/golang", "go_module")
 
 neon = go_module(
+    go = GO,
     name = "neon",
-    sources = glob("**/*.go", "go.mod", "go.sum"),
+    go_mod = glob("go.mod"),
+    go_sum = glob("go.sum"),
+    sources = glob("**/*.go"),
 )
