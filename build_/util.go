@@ -25,7 +25,9 @@ func markdown(
 	return blackfriday.Run(
 		input,
 		blackfriday.WithExtensions(
-			blackfriday.CommonExtensions|blackfriday.Footnotes,
+			blackfriday.CommonExtensions|
+				blackfriday.Footnotes|
+				blackfriday.Tables,
 		),
 		blackfriday.WithRenderer(
 			bfchroma.NewRenderer(
