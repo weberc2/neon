@@ -44,15 +44,19 @@ func copyStaticDir(conf config.Config) error {
 	return nil
 }
 
+func relLink(siteRoot, urlPath string) string {
+	root := strings.TrimRight(siteRoot, "/")
+	urlPath = strings.TrimLeft(urlPath, "/")
+	return root + "/" + urlPath
+}
+
 func BuildSite(conf config.Config) error {
 	funcs := template.FuncMap{
 		"snippet":  snippet,
 		"markdown": mkmdfunc(conf.CodeHighlightTheme),
 		"html_":    func(b []byte) template.HTML { return template.HTML(b) },
-		"rellink": func(urlpath string) string {
-			root := strings.TrimRight(conf.SiteRoot, "/")
-			urlpath = strings.TrimLeft(urlpath, "/")
-			return root + "/" + urlpath
+		"rellink": func(urlPath string) string {
+			return relLink(conf.SiteRoot, urlPath)
 		},
 	}
 	templatesDirectory := themeDirectory(conf, "templates")
@@ -107,6 +111,11 @@ func BuildSite(conf config.Config) error {
 			"Failed to build index pages",
 			err,
 		)
+	}
+
+	// build feed
+	if err := buildFeed(conf, posts); err != nil {
+		return buildErrors.New("feed_building", "Failed to build feed", err)
 	}
 
 	// copy over the resources directory

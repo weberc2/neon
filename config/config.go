@@ -17,6 +17,9 @@ type Config struct {
 	PostOutputDirectory string      `json:"post_output_directory"`
 	SiteRoot            string      `json:"site_root"`
 	Theme               string      `json:"theme"`
+	Title               string      `json:"title"`
+	Description         string      `json:"description"`
+	Author              string      `json:"author"`
 	ThemeConfig         interface{} `json:"theme_config"`
 
 	// See https://github.com/alecthomas/chroma/tree/master/styles for complete

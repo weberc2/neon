@@ -4,6 +4,7 @@ require (
 	github.com/Depado/bfchroma v1.1.1
 	github.com/alecthomas/chroma v0.5.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/gorilla/feeds v1.1.1
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/jaschaephraim/lrserver v0.0.0-20171129202958-50d19f603f71
 	github.com/russross/blackfriday v2.0.0+incompatible
