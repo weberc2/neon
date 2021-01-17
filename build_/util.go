@@ -2,6 +2,7 @@ package build
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,9 +12,19 @@ import (
 	"gopkg.in/russross/blackfriday.v2"
 )
 
-func mkmdfunc(codeHighlightTheme string) func([]byte, string) []byte {
+func mkmdfunc(
+	codeHighlightTheme string,
+	linkPrefix string,
+	outputExtension string,
+) func([]byte, string) []byte {
 	return func(input []byte, footnoteURLPrefix string) []byte {
-		return markdown(input, footnoteURLPrefix, codeHighlightTheme)
+		return markdown(
+			input,
+			footnoteURLPrefix,
+			codeHighlightTheme,
+			linkPrefix,
+			outputExtension,
+		)
 	}
 }
 
@@ -21,6 +32,8 @@ func markdown(
 	input []byte,
 	footnoteURLPrefix string,
 	codeHighlightTheme string,
+	linkPrefix string,
+	outputExtension string,
 ) []byte {
 	return blackfriday.Run(
 		input,
@@ -30,18 +43,60 @@ func markdown(
 				blackfriday.Tables,
 		),
 		blackfriday.WithRenderer(
-			bfchroma.NewRenderer(
-				bfchroma.Extend(blackfriday.NewHTMLRenderer(
-					blackfriday.HTMLRendererParameters{
-						FootnoteAnchorPrefix: footnoteURLPrefix,
-						Flags:                blackfriday.CommonHTMLFlags,
-					},
-				)),
-				bfchroma.WithoutAutodetect(),
-				bfchroma.Style(codeHighlightTheme),
-			),
+			&renderer{
+				linkPrefix:      linkPrefix,
+				outputExtension: outputExtension,
+				Renderer: bfchroma.NewRenderer(
+					bfchroma.Extend(blackfriday.NewHTMLRenderer(
+						blackfriday.HTMLRendererParameters{
+							FootnoteAnchorPrefix: footnoteURLPrefix,
+							Flags:                blackfriday.CommonHTMLFlags,
+						},
+					)),
+					bfchroma.WithoutAutodetect(),
+					bfchroma.Style(codeHighlightTheme),
+				),
+			},
 		),
 	)
+}
+
+// This renderer handles relative links to posts. First of all, it allows the
+// author to link to source files so the source markdown doesn't need to know
+// (and thus be tightly coupled to) configuration details like site root, post
+// output directory, and post output extension. More importantly, it prevents
+// links in snippet texts from failing to resolve on index pages and feed
+// descriptions. E.g., if a post 'foo.md' links to './bar.md' and the post
+// output directory is /posts/, then the snippet for the 'foo' post will link
+// to ./bar.html instead of ./posts/bar.html. To work around this, we make all
+// links beginning with './' into absolute links (we also want to take care to
+// handle cases where the site root is a nested path, like
+// 'example.com/blog/').
+type renderer struct {
+	blackfriday.Renderer
+	linkPrefix      string
+	outputExtension string
+}
+
+func (r *renderer) RenderNode(
+	w io.Writer,
+	node *blackfriday.Node,
+	entering bool,
+) blackfriday.WalkStatus {
+	const prefix = "./"
+	n := *node
+	if bytes.HasPrefix(n.LinkData.Destination, []byte(prefix)) {
+		n.LinkData.Destination = []byte(fmt.Sprintf(
+			"%s/%s",
+			r.linkPrefix,
+			bytes.ReplaceAll(
+				n.LinkData.Destination[len(prefix):],
+				[]byte(postInputExtension),
+				[]byte(r.outputExtension),
+			),
+		))
+	}
+	return r.Renderer.RenderNode(w, &n, entering)
 }
 
 func snippet(input []byte) []byte {

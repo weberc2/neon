@@ -9,6 +9,12 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+type FeedConfig struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Author      string `json:"author"`
+}
+
 type Config struct {
 	InputDirectory      string      `json:"input_directory"`
 	LiveReloadPort      uint16      `json:"live_reload_port"`
@@ -17,10 +23,8 @@ type Config struct {
 	PostOutputDirectory string      `json:"post_output_directory"`
 	SiteRoot            string      `json:"site_root"`
 	Theme               string      `json:"theme"`
-	Title               string      `json:"title"`
-	Description         string      `json:"description"`
-	Author              string      `json:"author"`
 	ThemeConfig         interface{} `json:"theme_config"`
+	Feed                FeedConfig  `json:"feed"`
 
 	// See https://github.com/alecthomas/chroma/tree/master/styles for complete
 	// list.
@@ -79,7 +83,7 @@ func Load() (Config, error) {
 		OutputDirectory:     filepath.Join(root, "_output"),
 		PostOutputDirectory: "posts",
 		Theme:               "default",
-		OutputExtension:     "html",
+		OutputExtension:     ".html",
 		SiteRoot:            "http://localhost:8000/",
 		IndexPageSize:       3,
 	}

@@ -27,10 +27,12 @@ func (pb PageBuilder) BuildPage(id string, page Page) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		return err
 	}
+
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
+
 	return pb.Renderer.RenderPage(
 		file,
 		struct {

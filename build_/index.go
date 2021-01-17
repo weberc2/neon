@@ -44,13 +44,15 @@ func parseFile(path string) (Post, error) {
 	return parsePost(file)
 }
 
+const postInputExtension = ".md"
+
 func indexPosts(dir, outputDir, outputExtension string) (ByDate, error) {
 	fpi := &FilepathIter{directories: []string{dir}}
 
 	posts := ByDate{}
 	for fpi.Next() {
 		path := fpi.Filepath()
-		if !strings.HasSuffix(path, ".md") {
+		if !strings.HasSuffix(path, postInputExtension) {
 			continue
 		}
 		relpath, err := filepath.Rel(dir, path)
@@ -68,7 +70,7 @@ func indexPosts(dir, outputDir, outputExtension string) (ByDate, error) {
 		idx := strings.LastIndex(relpath, ".")
 		post.ID = filepath.Join(
 			outputDir,
-			relpath[:idx]+"."+outputExtension,
+			relpath[:idx]+outputExtension,
 		)
 
 		posts = append(posts, post)

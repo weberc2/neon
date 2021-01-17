@@ -1,8 +1,6 @@
 # Neon
 
-Neon is a static site generator. I created it as a learning exercise, but I use
-it for my (very low-volume) personal blog. It also seemed easier to build my
-own SSG rather than learn Hugo or similar.
+Neon is a static site generator built by me and for me.
 
 ## Install
 
@@ -14,12 +12,7 @@ To install, you must have the Go toolchain installed at version 1.11 or later.
 
 ## Usage
 
-(NOTE: This is horrendously incomplete)
-
 ### Initializing a neon project
-
-One day I will create a `neon init` subcommand to do this, but today is not
-that day.
 
 Neon projects have a file called `neon.yaml` in their root. Neon commands run
 in any subdirectory of the project root will be run against the project. The
@@ -30,18 +23,20 @@ the configuration options):
 ```yaml
 theme: default
 live_reload_port: 8081
-theme_config:
-    site_title: Craig Weber
-    copyright: Craig Weber 2016
-    contact:
-        -
-            url: http://twitter.com/weberc2
-            text: Twitter
-        -
-            url: http://github.com/weberc2
-            text: Github
+title: Craig Weber
+description: "My blog; mostly tech"
+author: Craig Weber
+theme_config: # these params are only passed into the theme templates
+  site_title: Craig Weber
+  copyright: Craig Weber 2016
+  contact:
+    - url: http://twitter.com/weberc2
+      text: Twitter
+    - url: http://github.com/weberc2
+      text: Github
+  analytics_url: https://azd7mnx3pk.execute-api.us-east-2.amazonaws.com
 index_page_size: 10
-site_root: https://weberc2.bitbucket.io
+site_root: https://weberc2.github.io
 code_highlight_theme: friendly
 ```
 

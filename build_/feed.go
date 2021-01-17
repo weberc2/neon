@@ -1,6 +1,7 @@
 package build
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -18,10 +19,10 @@ func buildFeed(conf config.Config, posts ByDate) error {
 	}
 
 	feed := &feeds.Feed{
-		Title:       conf.Title,
+		Title:       conf.Feed.Title,
 		Link:        &feeds.Link{Href: conf.SiteRoot},
-		Description: conf.Description,
-		Author:      &feeds.Author{Name: conf.Author},
+		Description: conf.Feed.Description,
+		Author:      &feeds.Author{Name: conf.Feed.Author},
 		Created:     now,
 	}
 	for _, post := range posts {
@@ -30,21 +31,22 @@ func buildFeed(conf config.Config, posts ByDate) error {
 			&feeds.Item{
 				Title:       post.Title,
 				Link:        &feeds.Link{Href: relLink(conf.SiteRoot, post.ID)},
-				Author:      &feeds.Author{Name: conf.Author},
+				Author:      &feeds.Author{Name: conf.Feed.Author},
 				Created:     time.Time(post.Date),
 				Description: string(snippet(post.Body)),
 			},
 		)
 	}
 
-	file, err := os.Create(filepath.Join(
-		conf.OutputDirectory,
-		"feed.atom",
-	))
+	file, err := os.Create(filepath.Join(conf.OutputDirectory, "feed.atom"))
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("ERROR Failed to close file: %v", err)
+		}
+	}()
 
 	return feed.WriteAtom(file)
 }

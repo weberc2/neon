@@ -10,10 +10,6 @@ import (
 	"bitbucket.org/weberc2/neon/config"
 )
 
-func postsDirectory(conf config.Config) string {
-	return filepath.Join(conf.InputDirectory, "posts")
-}
-
 func themeDirectory(conf config.Config, innerPaths ...string) string {
 	return filepath.Join(append([]string{
 		conf.InputDirectory,
@@ -45,6 +41,12 @@ func copyStaticDir(conf config.Config) error {
 }
 
 func relLink(siteRoot, urlPath string) string {
+	if urlPath == "" {
+		return siteRoot
+	}
+	if siteRoot == "" {
+		return urlPath
+	}
 	root := strings.TrimRight(siteRoot, "/")
 	urlPath = strings.TrimLeft(urlPath, "/")
 	return root + "/" + urlPath
@@ -52,9 +54,13 @@ func relLink(siteRoot, urlPath string) string {
 
 func BuildSite(conf config.Config) error {
 	funcs := template.FuncMap{
-		"snippet":  snippet,
-		"markdown": mkmdfunc(conf.CodeHighlightTheme),
-		"html_":    func(b []byte) template.HTML { return template.HTML(b) },
+		"snippet": snippet,
+		"markdown": mkmdfunc(
+			conf.CodeHighlightTheme,
+			relLink(conf.SiteRoot, conf.PostOutputDirectory),
+			conf.OutputExtension,
+		),
+		"html_": func(b []byte) template.HTML { return template.HTML(b) },
 		"rellink": func(urlPath string) string {
 			return relLink(conf.SiteRoot, urlPath)
 		},
@@ -71,7 +77,7 @@ func BuildSite(conf config.Config) error {
 
 	// index posts
 	posts, err := indexPosts(
-		postsDirectory(conf),
+		filepath.Join(conf.InputDirectory, "posts"),
 		conf.PostOutputDirectory,
 		conf.OutputExtension,
 	)
