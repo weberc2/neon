@@ -6,8 +6,8 @@ import (
 	"os"
 	"runtime/debug"
 
-	"bitbucket.org/weberc2/neon/build_"
-	"bitbucket.org/weberc2/neon/serve"
+	"github.com/weberc2/neon/build"
+	"github.com/weberc2/neon/serve"
 	"gopkg.in/urfave/cli.v2"
 )
 

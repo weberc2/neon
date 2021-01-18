@@ -1,4 +1,4 @@
-module bitbucket.org/weberc2/neon
+module github.com/weberc2/neon
 
 require (
 	github.com/Depado/bfchroma v1.1.1

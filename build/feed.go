@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"bitbucket.org/weberc2/neon/config"
 	"github.com/gorilla/feeds"
+	"github.com/weberc2/neon/config"
 )
 
 func buildFeed(conf config.Config, posts ByDate) error {

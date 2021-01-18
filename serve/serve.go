@@ -14,8 +14,8 @@ import (
 
 	"gopkg.in/fsnotify.v1"
 
-	"bitbucket.org/weberc2/neon/build_"
-	"bitbucket.org/weberc2/neon/config"
+	"github.com/weberc2/neon/build"
+	"github.com/weberc2/neon/config"
 )
 
 func serve(liveReload *lrserver.Server, dir, port string) error {

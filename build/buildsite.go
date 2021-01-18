@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/weberc2/neon/config"
+	"github.com/weberc2/neon/config"
 )
 
 func themeDirectory(conf config.Config, innerPaths ...string) string {

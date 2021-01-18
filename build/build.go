@@ -1,6 +1,6 @@
 package build
 
-import "bitbucket.org/weberc2/neon/config"
+import "github.com/weberc2/neon/config"
 
 var (
 	buildErrors ErrorClass
