@@ -10,7 +10,13 @@ import (
 	"github.com/weberc2/neon/config"
 )
 
-func buildFeed(conf config.Config, posts ByDate) error {
+type markdownRenderer func(input []byte, footnoteURLPrefix string) []byte
+
+func buildFeed(
+	conf config.Config,
+	posts ByDate,
+	renderMarkdown markdownRenderer,
+) error {
 	var now time.Time
 	if len(posts) > 0 {
 		now = time.Time(posts[0].Date)
@@ -26,6 +32,11 @@ func buildFeed(conf config.Config, posts ByDate) error {
 		Created:     now,
 	}
 	for _, post := range posts {
+		body := renderMarkdown(post.Body, post.ID)
+		description := snippet(body)
+		if len(description) < 1 {
+			description = body
+		}
 		feed.Items = append(
 			feed.Items,
 			&feeds.Item{
@@ -33,7 +44,7 @@ func buildFeed(conf config.Config, posts ByDate) error {
 				Link:        &feeds.Link{Href: relLink(conf.SiteRoot, post.ID)},
 				Author:      &feeds.Author{Name: conf.Feed.Author},
 				Created:     time.Time(post.Date),
-				Description: string(snippet(post.Body)),
+				Description: string(description),
 			},
 		)
 	}

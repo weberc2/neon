@@ -53,14 +53,15 @@ func relLink(siteRoot, urlPath string) string {
 }
 
 func BuildSite(conf config.Config) error {
+	renderHTML := mkmdfunc(
+		conf.CodeHighlightTheme,
+		relLink(conf.SiteRoot, conf.PostOutputDirectory),
+		conf.OutputExtension,
+	)
 	funcs := template.FuncMap{
-		"snippet": snippet,
-		"markdown": mkmdfunc(
-			conf.CodeHighlightTheme,
-			relLink(conf.SiteRoot, conf.PostOutputDirectory),
-			conf.OutputExtension,
-		),
-		"html_": func(b []byte) template.HTML { return template.HTML(b) },
+		"snippet":  snippet,
+		"markdown": renderHTML,
+		"html_":    func(b []byte) template.HTML { return template.HTML(b) },
 		"rellink": func(urlPath string) string {
 			return relLink(conf.SiteRoot, urlPath)
 		},
@@ -120,7 +121,7 @@ func BuildSite(conf config.Config) error {
 	}
 
 	// build feed
-	if err := buildFeed(conf, posts); err != nil {
+	if err := buildFeed(conf, posts, renderHTML); err != nil {
 		return buildErrors.New("feed_building", "Failed to build feed", err)
 	}
 
