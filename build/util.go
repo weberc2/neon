@@ -9,21 +9,32 @@ import (
 	"path/filepath"
 
 	"github.com/Depado/bfchroma"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
+
+type markdownFunc func(
+	input []byte,
+	footnoteURLPrefix string,
+	headingLevelOffset int,
+) []byte
 
 func mkmdfunc(
 	codeHighlightTheme string,
 	linkPrefix string,
 	outputExtension string,
-) func([]byte, string) []byte {
-	return func(input []byte, footnoteURLPrefix string) []byte {
+) markdownFunc {
+	return func(
+		input []byte,
+		footnoteURLPrefix string,
+		headingLevelOffset int,
+	) []byte {
 		return markdown(
 			input,
 			footnoteURLPrefix,
 			codeHighlightTheme,
 			linkPrefix,
 			outputExtension,
+			headingLevelOffset,
 		)
 	}
 }
@@ -34,13 +45,15 @@ func markdown(
 	codeHighlightTheme string,
 	linkPrefix string,
 	outputExtension string,
+	headingLevelOffset int,
 ) []byte {
 	return blackfriday.Run(
 		input,
 		blackfriday.WithExtensions(
 			blackfriday.CommonExtensions|
 				blackfriday.Footnotes|
-				blackfriday.Tables,
+				blackfriday.Tables|
+				blackfriday.AutoHeadingIDs,
 		),
 		blackfriday.WithRenderer(
 			&renderer{
@@ -51,6 +64,7 @@ func markdown(
 						blackfriday.HTMLRendererParameters{
 							FootnoteAnchorPrefix: footnoteURLPrefix,
 							Flags:                blackfriday.CommonHTMLFlags,
+							HeadingLevelOffset:   headingLevelOffset,
 						},
 					)),
 					bfchroma.WithoutAutodetect(),

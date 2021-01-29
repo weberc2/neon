@@ -10,12 +10,12 @@ import (
 	"github.com/weberc2/neon/config"
 )
 
-type markdownRenderer func(input []byte, footnoteURLPrefix string) []byte
+const feedHeadingOffset = 2
 
 func buildFeed(
 	conf config.Config,
 	posts ByDate,
-	renderMarkdown markdownRenderer,
+	renderMarkdown markdownFunc,
 ) error {
 	var now time.Time
 	if len(posts) > 0 {
@@ -32,7 +32,7 @@ func buildFeed(
 		Created:     now,
 	}
 	for _, post := range posts {
-		body := renderMarkdown(post.Body, post.ID)
+		body := renderMarkdown(post.Body, post.ID, feedHeadingOffset)
 		description := snippet(body)
 		if len(description) < 1 {
 			description = body
