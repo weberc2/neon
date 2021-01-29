@@ -34,8 +34,29 @@ func addWatchDirs(w *fsnotify.Watcher, inputDir, outputDir string) error {
 		return err
 	}
 
-	directories := []string{inputDir}
-	w.Add(inputDir)
+	var directories []string
+
+	// ignore .git in the base directory by individually adding all other files
+	files, err := ioutil.ReadDir(inputDir)
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		path := filepath.Join(inputDir, file.Name())
+		if file.IsDir() {
+			if file.Name() == ".git" {
+				continue
+			}
+
+			// If the current file is a directory *other than* the .git
+			// directory, then go ahead and add it.
+			directories = append(directories, path)
+		}
+		// If we got here, the current file is either a file or directory, but
+		// it is not the .git directory
+		w.Add(path)
+	}
+
 	for len(directories) > 0 {
 		// pop off the current directory
 		currentDirectory := directories[0]
